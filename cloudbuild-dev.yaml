@@ -1,23 +1,43 @@
 steps:
-  # Step 1: Compile the Go Application
+  # Build Go app
   - name: 'gcr.io/cloud-builders/go'
     env: ['GOPATH=/gopath']
     args: ['build', '-o', 'main', 'main.go']
 
-  # Step 2: Build the Docker image for the Go application
+  # Build Docker image (IMPORTANT: correct name)
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild-dev:v1.0', '.']
+    args:
+      - 'build'
+      - '-t'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild:v1.0'
+      - '.'
 
-  # Step 3: Push the Docker image to Artifact Registry
+  # Push image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild-dev:v1.0']
+    args:
+      - 'push'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild:v1.0'
 
-  # Step 4: Apply the production deployment YAML file to the production namespace
+  # Get GKE credentials
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'container'
+      - 'clusters'
+      - 'get-credentials'
+      - 'hello-cluster'
+      - '--zone'
+      - 'us-east1-d'
+      - '--project'
+      - '$PROJECT_ID'
+
+  # Deploy to dev namespace
   - name: 'gcr.io/cloud-builders/kubectl'
-    id: 'Deploy'
-    args: ['-n', 'dev', 'apply', '-f', 'dev/deployment.yaml']
-    env:
-    - 'CLOUDSDK_COMPUTE_REGION=us-east1-d'
-    - 'CLOUDSDK_CONTAINER_CLUSTER=hello-cluster'
+    args:
+      - 'apply'
+      - '-f'
+      - 'dev/deployment.yaml'
+      - '-n'
+      - 'dev'
+
 options:
- logging: CLOUD_LOGGING_ONLY
+  logging: CLOUD_LOGGING_ONLY
