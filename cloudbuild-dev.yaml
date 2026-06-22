@@ -9,14 +9,14 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild:v1.0'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild:v2.0'
       - '.'
 
   # Push image
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild:v1.0'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/my-repository/hello-cloudbuild:v2.0'
 
   # Get GKE credentials
   - name: 'gcr.io/cloud-builders/gcloud'
